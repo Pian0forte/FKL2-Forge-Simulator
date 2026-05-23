@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fort Knight Legend 2 - Blacksmith Forge Station</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0d0a08;
+            color: #d1c4b9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            user-select: none;
+        }
+
+        /* CURRENCY TOP BAR INDEX OVERLAY REPLICA */
+        .currency-bar {
+            display: flex;
+            background-color: #1a1410;
+            border: 2px solid #3c332a;
+            border-radius: 20px;
+            padding: 6px 24px;
+            gap: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .currency-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 1.05rem;
+            color: #ffffff;
+        }
+        .currency-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        /* LAYOUT MAIN DIVISION PANELS */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            width: 100%;
+            max-width: 960px;
+            margin-top: 5px;
+        }
+
+        @media (min-width: 800px) {
+            .workspace {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            .recast-panel { flex: 1.1; position: sticky; top: 20px; }
+            .preview-panel { flex: 0.9; display: flex; justify-content: center; }
+        }
+
+        /* RECAST FORGE STATION DESIGN */
+        .recast-panel {
+            background-color: #1c1612;
+            border: 2px solid #4a3e33;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+        }
+        h2 {
+            color: #f59e0b;
+            font-size: 1.15rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #4a3e33;
+            padding-bottom: 6px;
+            text-align: center;
+        }
+
+        /* RECAST BUTTON SPECS */
+        .recast-btn-container {
+            text-align: center;
+            background-color: #130d0a;
+            border: 1px solid #3a3027;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .recast-main-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: #ffffff;
+            border: 1px solid #f59e0b;
+            padding: 12px 15px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
+            transition: transform 0.1s, filter 0.2s;
+        }
+        .recast-main-btn.lowest-btn {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            border-color: #38bdf8;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+        }
+        .recast-main-btn:hover {
+            filter: brightness(1.1);
+        }
+        .recast-main-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* ROW MANIPULATOR ELEMENTS */
+        .workbench-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #261f1a;
+            padding: 8px 12px;
+            border: 1px solid #3c3229;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            transition: background-color 0.2s;
+        }
+        .workbench-row.locked-bg {
+            background-color: #16120f;
+            border-color: #2b231d;
+        }
+        .lock-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            filter: grayscale(1);
+            transition: filter 0.2s;
+        }
+        .lock-btn.locked {
+            filter: grayscale(0);
+        }
+        .row-label-group {
+            font-size: 0.8rem;
+            font-weight: bold;
+            min-width: 60px;
+            color: #a39485;
+        }
+        .row-tier-badge {
+            font-size: 0.9rem;
+            font-weight: bold;
+            width: 42px;
+        }
+        .row-text-input {
+            flex: 1;
+            background-color: #0b0907;
+            color: #7dd3fc;
+            border: 1px solid #4a3e33;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .utility-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .util-btn {
+            flex: 1;
+            background-color: #2b221a;
+            color: #d1c4b9;
+            border: 1px solid #4a3e33;
+            padding: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .util-btn:hover {
+            background-color: #382d22;
+            border-color: #ff6600;
+        }
+
+        /* PREVIEW TOOLTIP CARD INLINE SPECIFICATION */
+        .item-card {
+            background: linear-gradient(180deg, #100c08 0%, #050402 100%);
+            border: 2px solid #3c332a;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .card-padding { padding: 18px 20px 12px 20px; }
+
+        .item-header { text-align: center; border-bottom: 1px solid #5e4f41; padding-bottom: 8px; margin-bottom: 12px; }
+        .item-title { color: #ff6600; font-size: 1.45rem; font-weight: bold; margin: 2px 0; }
+        
+        .item-image-container {
+            width: 76px; height: 76px;
+            background: radial-gradient(circle, #443224 0%, #0f0b08 100%);
+            border: 1px solid #5e4f41; border-radius: 6px;
+            margin: 8px auto 12px auto; display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .image-upgrade-badge { position: absolute; top: 2px; right: 4px; color: #ffffff; font-weight: bold; font-size: 0.85rem; }
+        .item-image-container svg { width: 52px; height: 52px; filter: drop-shadow(0px 0px 5px #ff9955); }
+
+        .base-row { display: flex; justify-content: space-between; margin: 3px 0; font-size: 0.95rem; }
+        .stat-label-dim { color: #a39485; }
+        .stat-val-white { color: #ffffff; }
+        .item-stats-base { border-bottom: 1px solid #3c332a; padding-bottom: 8px; margin-bottom: 12px; }
+
+        .item-affixes-list { font-size: 0.92rem; line-height: 1.45; margin-bottom: 12px; }
+        .affix-line { display: flex; gap: 5px; margin: 5px 0; align-items: flex-start; color: #7dd3fc; }
+        
+        /* CHROMATIC ARPG TIER RARITY COLOR PROFILES */
+        .t-t8 { color: #ef4444; font-weight: bold; text-shadow: 0 0 4px rgba(239, 68, 68, 0.4); } 
+        .t-t7 { color: #f59e0b; font-weight: bold; text-shadow: 0 0 4px rgba(245, 158, 11, 0.4); } 
+        .t-t6 { color: #a855f7; font-weight: bold; } 
+        .t-t5 { color: #3b82f6; font-weight: bold; } 
+        .t-t4 { color: #06b6d4; } 
+        .t-t3 { color: #10b981; } 
+        .t-t2 { color: #9ca3af; } 
+        .t-t1 { color: #6b7280; } 
+
+        .item-implicit-box { border-top: 1px solid #3c332a; border-bottom: 1px solid #3c332a; padding: 8px 0; margin-bottom: 12px; }
+        .implicit-title { color: #ff6600; font-weight: bold; font-size: 0.92rem; }
+        .implicit-desc { color: #ff9955; font-size: 0.9rem; margin-top: 2px; }
+        .item-flavor { color: #a39485; font-style: italic; font-size: 0.85rem; text-align: center; margin-top: 4px; }
+
+        .corrupted-banner {
+            background: linear-gradient(90deg, #500c0c 0%, #991b1b 50%, #500c0c 100%);
+            color: #ffffff; text-align: center; font-weight: bold; font-size: 0.88rem; padding: 6px 0; letter-spacing: 1px; border-top: 1px solid #ef4444;
+            display: none;
+        }
+
+        [contenteditable="true"] { user-select: text; }
+        [contenteditable="true"]:hover { outline: 1px dashed #5e4f41; background-color: #17120e; }
+        [contenteditable="true"]:focus { outline: 1px solid #ff6600; background-color: #211914; }
+    </style>
+</head>
+<body>
+
+<div class="currency-bar">
+    <div class="currency-item" title="Mana Crystals">
+        <div class="currency-icon" style="background: radial-gradient(#60a5fa, #1d4ed8);"></div>
+        <span>∞</span>
+    </div>
+    <div class="currency-item" title="Forge Shards">
+        <div class="currency-icon" style="background: radial-gradient(#c084fc, #6b21a8);"></div>
+        <span>∞</span>
+    </div>
+    <div class="currency-item" title="Gold Coins">
+        <div class="currency-icon" style="background: radial-gradient(#fde047, #a16207);"></div>
+        <span>∞</span>
+    </div>
+</div>
+
+<div class="workspace">
+    
+    <div class="recast-panel">
+        <h2>Recast Station</h2>
+        
+        <div class="recast-btn-container">
+            <div class="btn-row">
+                <button class="recast-main-btn" id="btnMainRecast">RECAST ONE (<span id="cntOne">0</span>)</button>
+                <button class="recast-main-btn lowest-btn" id="btnRecastLowest">RECAST LOWEST (<span id="cntLowest">0</span>)</button>
+            </div>
+        </div>
+
+        <div id="workbenchSlotsContainer"></div>
+
+        <div class="utility-row">
+            <button class="util-btn" id="btnRollBase">🎲 Fresh Drop</button>
+            <button class="util-btn" id="btnToggleCorrupt">⚠️ Corrupt Card</button>
+            <button class="util-btn" id="btnToggleMute">🔊 Sound: ON</button>
+        </div>
+    </div>
+
+    <div class="preview-panel">
+        <div class="item-card">
+            <div class="card-padding">
+                <div class="item-header">
+                    <div style="color: #a39485; font-size: 0.88rem; font-weight: bold;" contenteditable="true">Exalted</div>
+                    <div class="item-title" id="cardTitle" contenteditable="true">Justice Blade (+20)</div>
+                    <div style="color: #d1c4b9; font-size: 0.85rem;" contenteditable="true">of the Warlord</div>
+                </div>
+
+                <div class="item-image-container">
+                    <span class="image-upgrade-badge" id="imgBadge">+20</span>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3L21 5L10 16L7 17L8 14L19 3Z" fill="#bae6fd" stroke="#38bdf8" stroke-width="1"/>
+                        <path d="M11 13L13 15" stroke="#7dd3fc" stroke-width="1.5"/>
+                        <path d="M7 17L3 21M3 21H5M3 21V19" stroke="#bae6fd" stroke-width="1.5"/>
+                    </svg>
+                </div>
+
+                <div class="base-row" style="font-size: 1.1rem; font-weight: bold; margin-bottom: 6px;">
+                    <span class="stat-label-dim">Lv <span style="color:#fff;" contenteditable="true">72</span></span>
+                    <span style="color: #22c55e; font-size:0.85rem; text-align:right;" contenteditable="true">+428<br><span class="stat-label-dim" style="font-weight: normal;">22196</span></span>
+                </div>
+
+                <div class="item-stats-base">
+                    <div class="base-row"><span class="stat-label-dim">Physical Damage</span><span class="stat-val-white" contenteditable="true">1789.3 - 1857.1</span></div>
+                    <div class="base-row"><span class="stat-label-dim">Attack Critical Hit Chance</span><span class="stat-val-white" contenteditable="true">8%</span></div>
+                </div>
+
+                <div id="cardAffixesBox" class="item-affixes-list"></div>
+
+                <div class="item-implicit-box">
+                    <div class="implicit-title" id="mythicTitle">Poison Strike</div>
+                    <div class="implicit-desc" id="mythicDesc">Damage to vulnerable targets increased by 20.0% more</div>
+                </div>
+
+                <div class="item-flavor" contenteditable="true">"Slices through all oppression, a symbol of eternal freedom."</div>
+            </div>
+            <div class="corrupted-banner" id="corruptBanner">Corrupted!</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const prefixPool = [
+        { text: "Adds Physical Damage", weight: 8.84, range: [20, 350], rangeTwo: [100, 700], double: true },
+        { text: "Adds Fire Damage", weight: 8.84, range: [20, 350], rangeTwo: [100, 700], double: true },
+        { text: "Adds Cold Damage", weight: 8.84, range: [20, 350], rangeTwo: [100, 700], double: true },
+        { text: "Adds Lightning Damage", weight: 8.84, range: [5, 100], rangeTwo: [150, 800], double: true },
+        { text: "Adds Accuracy Rating", weight: 8.23, range: [15, 500], pct: false },
+        { text: "increased Physical Damage", weight: 5.75, range: [10, 120], pct: true },
+        { text: "increased Spell Damage", weight: 5.75, range: [10, 120], pct: true },
+        { text: "increased Elemental Damage", weight: 6.05, range: [10, 100], pct: true, isElemental: true },
+        { text: "Gain Damage as extra Cold Damage", weight: 6.05, range: [4, 40], pct: true },
+        { text: "Gain Damage as extra Fire Damage", weight: 6.05, range: [4, 40], pct: true },
+        { text: "Gain Damage as extra Lightning Damage", weight: 6.05, range: [4, 40], pct: true }
+    ];
+
+    const suffixPool = [
+        { text: "Gain Life per Enemy Hit", weight: 20.00, range: [1, 12], pct: false },
+        { text: "Gain Mana per Enemy Hit", weight: 20.00, range: [1, 8], pct: false },
+        { text: "Increased Attack Critical Hit Chance", weight: 12.75, range: [2, 25], pct: true },
+        { text: "increased Attack Critical Damage Bonus", weight: 12.75, range: [8, 90], pct: true },
+        { text: "Increased Spell Critical Hit Chance", weight: 12.75, range: [2, 25], pct: true },
+        { text: "increased Spell Critical Damage Bonus", weight: 12.75, range: [8, 90], pct: true },
+        { text: "Level to All Cold Skills", weight: 6.75, class: "allSkills" },
+        { text: "Level to All Fire Skills", weight: 6.75, class: "allSkills" },
+        { text: "Level to All Thunder Skills", weight: 6.75, class: "allSkills" },
+        { text: "Level to All Physical Skills", weight: 6.75, class: "allSkills" },
+        { text: "Level to All Attack Skills", weight: 3.75, class: "allSkills" },
+        { text: "Level to All Spell Skills", weight: 3.75, class: "allSkills" },
+        { text: "Level to Weapon Attack Skills", weight: 3.75, class: "weaponSkills" }
+    ];
+
+    const mythicPool = [
+        { title: "Blade Heart Remains", desc: "After a critical hit, gain 10.0% damage increase, lasting 5.0s, stackable up to 3.0 layers" },
+        { title: "Burn Boost", desc: "Increase damage to burned targets by 20.0% more" },
+        { title: "Deadly Focus", desc: "Spell Crit Rate 6%" },
+        { title: "Element Invoker", desc: "All Elemental Damage +15.0%, All Elemental Resistance +5.0%" },
+        { title: "Itality Surge", desc: "Max HP +10.0%, Life Regen +5.0%" },
+        { title: "Frost Bite", desc: "When Jump Slash hits, it freezes the enemy for 6 seconds" },
+        { title: "Frost Edge", desc: "Increases damage to frozen targets by 20% more" },
+        { title: "Poison Strike", desc: "Damage to vulnerable targets increased by 20.0% more" },
+        { title: "Shock Surge", desc: "Damage to electrified targets increased by 20% more" },
+        { title: "Thunder Strike", desc: "When a critical hit lands, Thunder Summon is triggered, dealing massive lightning damage" }
+    ];
+
+    const normalTierDistribution = [
+        { tier: 1, weight: 17.5 }, { tier: 2, weight: 10.0 }, { tier: 3, weight: 15.3 },
+        { tier: 4, weight: 9.4 },  { tier: 5, weight: 9.7 },  { tier: 6, weight: 11.3 },
+        { tier: 7, weight: 10.3 }, { tier: 8, weight: 7.2 }
+    ];
+
+    // Normalized to drop exclusively on T3 and T6 with pristine proportions
+    const allSkillsTierDistribution = [
+        { tier: 3, weight: 2.8 }, { tier: 6, weight: 2.8 }
+    ];
+
+    // Normalized to drop exclusively on T1, T3, T5, and T6
+    const weaponSkillsTierDistribution = [
+        { tier: 1, weight: 17.5 }, { tier: 3, weight: 15.3 },
+        { tier: 5, weight: 9.7 },  { tier: 6, weight: 11.3 }
+    ];
+
+    let currentAffixes = [
+        { id: 0, type: "Prefix", locked: false, tier: "T7", text: "", poolIdx: 0, subElement: "" },
+        { id: 1, type: "Prefix", locked: false, tier: "T5", text: "", poolIdx: 4, subElement: "" },
+        { id: 2, type: "Prefix", locked: false, tier: "T3", text: "", poolIdx: 7, subElement: "Thunder" },
+        
+        { id: 3, type: "Suffix", locked: false, tier: "T6", text: "", poolIdx: 0 },
+        { id: 4, type: "Suffix", locked: false, tier: "T3", text: "", poolIdx: 8 },
+        { id: 5, type: "Suffix", locked: false, tier: "T6", text: "", poolIdx: 12 }
+    ];
+
+    let countRecastOne = 0;
+    let countRecastLowest = 0;
+    let isMuted = false;
+
+    const workbenchSlotsContainer = document.getElementById('workbenchSlotsContainer');
+    const cardAffixesBox = document.getElementById('cardAffixesBox');
+    const btnMainRecast = document.getElementById('btnMainRecast');
+    const btnRecastLowest = document.getElementById('btnRecastLowest');
+    const cntOneDisplay = document.getElementById('cntOne');
+    const cntLowestDisplay = document.getElementById('cntLowest');
+
+    function playBeautifulForgeSound() {
+        if (isMuted) return;
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            
+            const bodyOsc = ctx.createOscillator();
+            const bodyGain = ctx.createGain();
+            bodyOsc.type = 'triangle';
+            bodyOsc.frequency.setValueAtTime(320, ctx.currentTime);
+            bodyOsc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.15);
+            bodyGain.gain.setValueAtTime(0.4, ctx.currentTime);
+            bodyGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+            
+            const ringOsc = ctx.createOscillator();
+            const ringGain = ctx.createGain();
+            ringOsc.type = 'sine';
+            ringOsc.frequency.setValueAtTime(1850, ctx.currentTime);
+            ringOsc.frequency.linearRampToValueAtTime(1830, ctx.currentTime + 0.4);
+            ringGain.gain.setValueAtTime(0.18, ctx.currentTime);
+            ringGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+
+            bodyOsc.connect(bodyGain); bodyGain.connect(ctx.destination);
+            ringOsc.connect(ringGain); ringGain.connect(ctx.destination);
+            bodyOsc.start(); ringOsc.start();
+            bodyOsc.stop(ctx.currentTime + 0.2);
+            ringOsc.stop(ctx.currentTime + 0.52);
+        } catch (e) {}
+    }
+
+    function pickWeightedIndex(poolArray) {
+        let totalWeight = poolArray.reduce((sum, item) => sum + item.weight, 0);
+        let randomVal = Math.random() * totalWeight;
+        let cumulative = 0;
+        for (let i = 0; i < poolArray.length; i++) {
+            cumulative += poolArray[i].weight;
+            if (randomVal <= cumulative) return i;
+        }
+        return poolArray.length - 1;
+    }
+
+    function pickWeightedTier(distribution) {
+        let totalWeight = distribution.reduce((sum, item) => sum + item.weight, 0);
+        let randomVal = Math.random() * totalWeight;
+        let cumulative = 0;
+        for (let i = 0; i < distribution.length; i++) {
+            cumulative += distribution[i].weight;
+            if (randomVal <= cumulative) return `T${distribution[i].tier}`;
+        }
+        return `T1`;
+    }
+
+    function init() {
+        currentAffixes.forEach(affix => {
+            let pool = affix.type === "Prefix" ? prefixPool : suffixPool;
+            affix.text = compileStatString(pool[affix.poolIdx], affix.tier, affix.subElement);
+        });
+
+        renderWorkbenchControls();
+        calculateRecastCostProfiles();
+        updateCardDisplay();
+
+        btnMainRecast.addEventListener('click', () => {
+            if (currentAffixes.filter(a => !a.locked).length > 0) {
+                playBeautifulForgeSound();
+                countRecastOne++;
+                cntOneDisplay.textContent = countRecastOne;
+                executeRecastCraftingAction(false, true); 
+            }
+        });
+
+        btnRecastLowest.addEventListener('click', () => {
+            if (currentAffixes.filter(a => !a.locked).length > 0) {
+                playBeautifulForgeSound();
+                countRecastLowest++;
+                cntLowestDisplay.textContent = countRecastLowest;
+                executeRecastCraftingAction(true, false);
+            }
+        });
+
+        document.getElementById('btnRollBase').addEventListener('click', forceFreshItemDropRoll);
+        document.getElementById('btnToggleCorrupt').addEventListener('click', () => {
+            const el = document.getElementById('corruptBanner');
+            el.style.display = (window.getComputedStyle(el).display === 'none') ? 'block' : 'none';
+        });
+
+        document.getElementById('btnToggleMute').addEventListener('click', (e) => {
+            isMuted = !isMuted;
+            e.target.textContent = isMuted ? "🔇 Sound: OFF" : "🔊 Sound: ON";
+        });
+    }
+
+    function renderWorkbenchControls() {
+        workbenchSlotsContainer.innerHTML = '';
+        currentAffixes.forEach((affix) => {
+            const row = document.createElement('div');
+            row.className = `workbench-row ${affix.locked ? 'locked-bg' : ''}`;
+
+            const lockBtn = document.createElement('button');
+            lockBtn.className = `lock-btn ${affix.locked ? 'locked' : ''}`;
+            lockBtn.innerHTML = affix.locked ? '🔒' : '🔓';
+            lockBtn.addEventListener('click', () => {
+                affix.locked = !affix.locked;
+                row.className = `workbench-row ${affix.locked ? 'locked-bg' : ''}`;
+                lockBtn.className = `lock-btn ${affix.locked ? 'locked' : ''}`;
+                lockBtn.innerHTML = affix.locked ? '🔒' : '🔓';
+                textInput.style.color = affix.locked ? '#4b5563' : '#7dd3fc';
+                textInput.disabled = affix.locked;
+                calculateRecastCostProfiles();
+            });
+
+            const labelsGroup = document.createElement('div');
+            labelsGroup.className = 'row-label-group';
+            labelsGroup.innerHTML = `<div>Slot 0${affix.id + 1}</div><div style="font-size:0.7rem; color:#d97706; font-weight:bold;">${affix.type}</div>`;
+
+            const badge = document.createElement('span');
+            badge.className = `row-tier-badge ${getTierColorClass(affix.tier)}`;
+            badge.textContent = `[${affix.tier}]`;
+
+            const textInput = document.createElement('input');
+            textInput.type = 'text';
+            textInput.className = 'row-text-input';
+            textInput.value = affix.text;
+            textInput.style.color = affix.locked ? '#4b5563' : '#7dd3fc';
+            textInput.disabled = affix.locked;
+            textInput.addEventListener('input', (e) => {
+                affix.text = e.target.value;
+                updateCardDisplay();
+            });
+
+            row.appendChild(lockBtn);
+            row.appendChild(labelsGroup);
+            row.appendChild(badge);
+            row.appendChild(textInput);
+            workbenchSlotsContainer.appendChild(row);
+        });
+    }
+
+    function calculateRecastCostProfiles() {
+        const totalLocks = currentAffixes.filter(a => a.locked).length;
+        const allLocked = (totalLocks >= 6);
+        btnMainRecast.disabled = allLocked;
+        btnMainRecast.style.opacity = allLocked ? '0.4' : '1';
+        btnRecastLowest.disabled = allLocked;
+        btnRecastLowest.style.opacity = allLocked ? '0.4' : '1';
+    }
+
+    function executeRecastCraftingAction(onlyLowest = false, pickOne = false) {
+        let targets = currentAffixes.filter(a => !a.locked);
+        if (targets.length === 0) return;
+
+        if (onlyLowest) {
+            let numericTiers = targets.map(a => parseInt(a.tier.replace("T", "")));
+            let lowestTierNum = Math.min(...numericTiers);
+            targets = targets.filter(a => parseInt(a.tier.replace("T", "")) === lowestTierNum);
+        } 
+        else if (pickOne) {
+            const randomTarget = targets[Math.floor(Math.random() * targets.length)];
+            targets = [randomTarget];
+        }
+
+        targets.forEach((affix) => {
+            let pool = affix.type === "Prefix" ? prefixPool : suffixPool;
+            
+            let existingPoolIndices = currentAffixes
+                .filter(a => a.id !== affix.id && a.type === affix.type)
+                .map(a => a.poolIdx);
+
+            let filteredPool = pool.map((item, idx) => ({ item, originalIdx: idx }))
+                                   .filter(obj => !existingPoolIndices.includes(obj.originalIdx));
+
+            if (filteredPool.length === 0) {
+                filteredPool = pool.map((item, idx) => ({ item, originalIdx: idx }));
+            }
+
+            let normalizedPool = filteredPool.map(obj => ({
+                idx: obj.originalIdx,
+                weight: obj.item.weight,
+                class: obj.item.class
+            }));
+
+            let nextIdx = affix.poolIdx;
+            let nextTier = affix.tier;
+            let nextText = affix.text;
+            let nextElement = affix.subElement || "";
+            let attempts = 0;
+
+            while (attempts < 100) {
+                let rolledSelection = normalizedPool[pickWeightedIndex(normalizedPool)];
+                let rolledIdx = rolledSelection.idx;
+                let baseObj = pool[rolledIdx];
+                let rolledTier = `T1`;
+                let rolledElement = "";
+
+                if (baseObj.isElemental) {
+                    const elements = ["Fire", "Cold", "Thunder"];
+                    rolledElement = elements[Math.floor(Math.random() * elements.length)];
+                }
+
+                if (baseObj.class === "allSkills") {
+                    rolledTier = pickWeightedTier(allSkillsTierDistribution);
+                } else if (baseObj.class === "weaponSkills") {
+                    rolledTier = pickWeightedTier(weaponSkillsTierDistribution);
+                } else {
+                    rolledTier = pickWeightedTier(normalTierDistribution);
+                }
+
+                let rolledText = compileStatString(baseObj, rolledTier, rolledElement);
+
+                if (rolledText !== affix.text || rolledTier !== affix.tier || normalizedPool.length === 1) {
+                    nextIdx = rolledIdx;
+                    nextTier = rolledTier;
+                    nextText = rolledText;
+                    nextElement = rolledElement;
+                    break;
+                }
+                attempts++;
+            }
+
+            if (nextText === affix.text && nextTier === affix.tier) {
+                if (pool[nextIdx].class === "allSkills") {
+                    nextTier = affix.tier === "T3" ? "T6" : "T3";
+                } else if (pool[nextIdx].class === "weaponSkills") {
+                    let wTiers = ["T1", "T3", "T5", "T6"];
+                    let currIdx = wTiers.indexOf(affix.tier);
+                    nextTier = wTiers[(currIdx + 1) % wTiers.length];
+                } else {
+                    let currentNum = parseInt(affix.tier.replace("T", ""));
+                    let adjustedNum = currentNum >= 8 ? currentNum - 1 : currentNum + 1;
+                    nextTier = `T${adjustedNum}`;
+                }
+                nextText = compileStatString(pool[nextIdx], nextTier, nextElement);
+            }
+
+            affix.poolIdx = nextIdx;
+            affix.tier = nextTier;
+            affix.text = nextText;
+            affix.subElement = nextElement;
+        });
+
+        renderWorkbenchControls();
+        calculateRecastCostProfiles();
+        updateCardDisplay();
+    }
+
+    function forceFreshItemDropRoll() {
+        let prefixes = [];
+        let suffixes = [];
+
+        let prefTracker = prefixPool.map((item, i) => ({ idx: i, weight: item.weight }));
+        while (prefixes.length < 3 && prefTracker.length > 0) {
+            let pickedIndex = pickWeightedIndex(prefTracker);
+            prefixes.push(prefTracker[pickedIndex].idx);
+            prefTracker.splice(pickedIndex, 1);
+        }
+
+        let suffTracker = suffixPool.map((item, i) => ({ idx: i, weight: item.weight }));
+        while (suffixes.length < 3 && suffTracker.length > 0) {
+            let pickedIndex = pickWeightedIndex(suffTracker);
+            suffixes.push(suffTracker[pickedIndex].idx);
+            suffTracker.splice(pickedIndex, 1);
+        }
+
+        currentAffixes = [];
+        
+        for (let i = 0; i < 3; i++) {
+            let baseObj = prefixPool[prefixes[i]];
+            let tierStr = pickWeightedTier(normalTierDistribution);
+            let rolledElement = "";
+            if (baseObj.isElemental) {
+                const elements = ["Fire", "Cold", "Thunder"];
+                rolledElement = elements[Math.floor(Math.random() * elements.length)];
+            }
+            currentAffixes.push({
+                id: i,
+                type: "Prefix",
+                locked: false,
+                tier: tierStr,
+                poolIdx: prefixes[i],
+                subElement: rolledElement,
+                text: compileStatString(baseObj, tierStr, rolledElement)
+            });
+        }
+
+        for (let i = 0; i < 3; i++) {
+            let baseObj = suffixPool[suffixes[i]];
+            let tierStr = `T1`;
+            if (baseObj.class === "allSkills") {
+                tierStr = pickWeightedTier(allSkillsTierDistribution);
+            } else if (baseObj.class === "weaponSkills") {
+                tierStr = pickWeightedTier(weaponSkillsTierDistribution);
+            } else {
+                tierStr = pickWeightedTier(normalTierDistribution);
+            }
+            currentAffixes.push({
+                id: i + 3,
+                type: "Suffix",
+                locked: false,
+                tier: tierStr,
+                poolIdx: suffixes[i],
+                subElement: "",
+                text: compileStatString(baseObj, tierStr)
+            });
+        }
+
+        const randMythic = mythicPool[Math.floor(Math.random() * mythicPool.length)];
+        document.getElementById('mythicTitle').textContent = randMythic.title;
+        document.getElementById('mythicDesc').textContent = randMythic.desc;
+
+        countRecastOne = 0;
+        countRecastLowest = 0;
+        cntOneDisplay.textContent = "0";
+        cntLowestDisplay.textContent = "0";
+
+        renderWorkbenchControls();
+        calculateRecastCostProfiles();
+        updateCardDisplay();
+    }
+
+    function compileStatString(base, tierStr, subElement = "") {
+        const tierNum = parseInt(tierStr.replace("T", ""));
+
+        if (base.class === "allSkills") {
+            let value = 0;
+            if (tierNum === 3) value = 1;
+            if (tierNum === 6) value = 2;
+            return `Adds Level to All ${base.text.replace("Level to All ", "")} +${value}`;
+        }
+
+        if (base.class === "weaponSkills") {
+            let val = 0;
+            if (tierNum === 1) val = 1;
+            if (tierNum === 3) val = 2;
+            if (tierNum === 5) val = 3;
+            if (tierNum === 6) val = 4;
+            return `Adds Level to Weapon Attack Skills +${val}`;
+        }
+
+        const tierMultiplier = 0.12 + (tierNum * 0.11); 
+        const varianceFactor = 0.85 + (Math.random() * 0.15);
+        
+        let minBound = base.range[0];
+        let maxBound = base.range[1];
+        let calculatedVal1 = (minBound + (maxBound - minBound) * tierMultiplier) * varianceFactor;
+        
+        if (calculatedVal1 > maxBound) calculatedVal1 = maxBound;
+        if (calculatedVal1 < minBound) calculatedVal1 = minBound;
+
+        if (base.double) {
+            let minTwo = base.rangeTwo[0];
+            let maxTwo = base.rangeTwo[1];
+            let calculatedVal2 = (minTwo + (maxTwo - minTwo) * tierMultiplier) * varianceFactor;
+            
+            if (calculatedVal2 > maxTwo) calculatedVal2 = maxTwo;
+            if (calculatedVal2 <= calculatedVal1) calculatedVal2 = calculatedVal1 * 1.25;
+
+            return `Adds ${calculatedVal1.toFixed(1)} - ${calculatedVal2.toFixed(1)} ${base.text.replace("Adds ", "")}`;
+        }
+
+        let labelText = base.text;
+        if (base.isElemental && subElement) {
+            labelText = `increased ${subElement} Damage`;
+        }
+
+        if (base.pct) {
+            return `${calculatedVal1.toFixed(1)}% ${labelText}`;
+        }
+
+        return `${labelText.replace("Adds ", "Adds " + Math.round(calculatedVal1) + " ")}`;
+    }
+
+    function updateCardDisplay() {
+        cardAffixesBox.innerHTML = '';
+        currentAffixes.forEach(affix => {
+            const line = document.createElement('div');
+            line.className = 'affix-line';
+            line.innerHTML = `<span class="${getTierColorClass(affix.tier)}">[${affix.tier}]</span> <span>${affix.text}</span>`;
+            cardAffixesBox.appendChild(line);
+        });
+    }
+
+    function getTierColorClass(tier) {
+        switch(tier) {
+            case "T8": return "t-t8";
+            case "T7": return "t-t7";
+            case "T6": return "t-t6";
+            case "T5": return "t-t5";
+            case "T4": return "t-t4";
+            case "T3": return "t-t3";
+            case "T2": return "t-t2";
+            case "T1": 
+            default: return "t-t1";
+        }
+    }
+
+    init();
+</script>
+
+</body>
+</html>
