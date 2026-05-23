@@ -2,7 +2,7 @@
 A browser-based, high-fidelity crafting simulator that replicates the Recast Station mechanics from Fort Knight Legend 2. This tool allows players to experiment with item affix rolling, lock mechanics, and stat maximization without burning through in-game resources.
 
 🚀 Live Demo
-[Insert your GitHub Pages link here once activated!]
+[https://github.com/Pian0forte/FKL2-Forge-Simulator/blob/main/FKL2%20Recasting.html]
 
 ✨ Features
 Affix Recasting System: Simulates exact Action-RPG crafting logic by rolling Prefixes and Suffixes simultaneously.
